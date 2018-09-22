@@ -86,10 +86,9 @@ class VerboseInfoHandler(chess.uci.InfoHandler):
 
 
 class Evaluator:
-    def __init__(self, lc0_binary: str, weights_dir: str, weights_id: int,
+    def __init__(self, lc0_binary: str, weights_format: str, weights_id: int,
                  extra_lc0_args: str):
-        weights_file = os.path.join(weights_dir,
-                                    'weights_{}.txt.gz'.format(weights_id))
+        weights_file = weights_format.format(weights_id)
         assert os.path.exists(weights_file)
         self._engine = chess.uci.popen_engine(
             [lc0_binary, '--weights=' + weights_file,
@@ -180,8 +179,8 @@ if __name__ == '__main__':
     argparser.add_argument('--output', type=argparse.FileType('w'),
                            default=sys.stdout)
     argparser.add_argument('--lc0_binary', default='lc0')
-    argparser.add_argument('--weights_dir', default=os.path.join(
-        os.environ['HOME'], 'LCZ/experimental-networks'))
+    argparser.add_argument('--weights_format', default=os.path.join(
+        os.environ['HOME'], 'LCZ/experimental-networks', 'weights_{}.txt.gz'))
     argparser.add_argument('--weights_id', type=int, required=True)      
     argparser.add_argument('--mcts_nodes', type=int, default=800)
     argparser.add_argument('--extra_lc0_args', default='')
@@ -189,7 +188,7 @@ if __name__ == '__main__':
     args = argparser.parse_args()
 
     evaluator = Evaluator(lc0_binary=args.lc0_binary,
-                          weights_dir=args.weights_dir,
+                          weights_format=args.weights_format,
                           weights_id=args.weights_id,
                           extra_lc0_args=args.extra_lc0_args)
     writer = csv.DictWriter(args.output, COLUMNS)
